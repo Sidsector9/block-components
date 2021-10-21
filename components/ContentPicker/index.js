@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import arrayMove from 'array-move';
 import styled from '@emotion/styled';
 import { select } from '@wordpress/data';
-import { useState, useEffect, useMemo } from '@wordpress/element';
+import { useState, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ContentSearch } from '../ContentSearch';
 import SortableList from './SortableList';
@@ -75,14 +75,31 @@ const ContentPicker = ({
 		onPickChange(content);
 	}, [content, onPickChange]);
 
+	const keyHash = useRef({});
+	function getUniqueKey(keyHash = {}, currentKey = '', previousKey = '') {
+		const keyToCheck = !previousKey ? currentKey : `${previousKey}-${currentKey}`;
+		const firstKey = previousKey || currentKey;
+
+		if (!keyHash[keyToCheck]) {
+			keyHash[keyToCheck] = true;
+			return [firstKey, keyToCheck];
+		}
+
+		return getUniqueKey(keyHash, keyToCheck, firstKey);
+	}
+
 	const handleSelect = (item) => {
-		setContent((previousContent) => [
-			{
-				id: item.id,
-				type: 'subtype' in item ? item.subtype : item.type,
-			},
-			...previousContent,
-		]);
+		setContent((previousContent) => {
+			const [key, uid] = getUniqueKey(keyHash.current, item.id);
+			return [
+				{
+					id: uid,
+					type: 'subtype' in item ? item.subtype : item.type,
+					duplicateOf: key !== uid ? key : 0,
+				},
+				...previousContent,
+			];
+		});
 	};
 
 	const onDeleteItem = (deletedItem) => {

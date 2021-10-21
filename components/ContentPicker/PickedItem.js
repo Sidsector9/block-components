@@ -54,14 +54,18 @@ const PickedItem = ({ item, isOrderable, handleItemDelete, mode }) => {
 		(select) => {
 			const { getEntityRecord, hasFinishedResolution } = select('core');
 
-			const getEntityRecordParameters = [type, item.type, item.id];
+			const getEntityRecordParameters = [
+				type,
+				item.type,
+				item.duplicateOf === 0 ? item.id : item.duplicateOf,
+			];
 			const result = getEntityRecord(...getEntityRecordParameters);
 
 			if (result) {
 				return {
 					title: mode === 'post' ? result.title.rendered : result.name,
 					url: result.link,
-					id: result.id,
+					id: item.duplicateOf === 0 ? result.id : item.duplicateOf,
 				};
 			}
 

@@ -55,6 +55,9 @@ registerBlockType( `${ NAMESPACE }/hello-world`, {
                     postTypes={ [ 'page', 'post' ] }
                     label={ __( 'Select a Post or Page', NAMESPACE ) }
                     handleSelect={ handlePostSelection }
+                    maxContentItems={ 6 }
+                    isOrderable={ true }
+                    uniqueContentItems={ false }
                 />
             </Placeholder>
             </>
